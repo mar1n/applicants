@@ -211,8 +211,8 @@ exports.accountActivation = (req, res) => {
                 "Some error occurred while creating the Customer.",
             });
           return res.json({
-              message: "Signup success. Please signin."
-          })
+            message: "Signup success. Please signin.",
+          });
         });
         // const user = new User({ name, email, password });
 
@@ -239,25 +239,62 @@ exports.accountActivation = (req, res) => {
 exports.signin = (req, res) => {
   const { email, password } = req.body;
   // check if user exist
-  User.findOne({ email }).exec((err, user) => {
-      if (err || !user) {
-          return res.status(400).json({
-              error: 'User with that email does not exist. Please signup'
-          });
-      }
-      // authenticate
-      if (!user.authenticate(password)) {
-          return res.status(400).json({
-              error: 'Email and password do not match'
-          });
-      }
-      // generate a token and send to client
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-      const { _id, name, email, role } = user;
-
-      return res.json({
-          token,
-          user: { _id, name, email, role }
+  mysqlUser.findById(email, (err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: "User with that email does not exist. Please signup",
       });
+    }
+    console.log("hashed password", user.hashed_password);
+    const encryptPassword = function (password) {
+      if (!password) return "";
+      try {
+        return crypto
+          .createHmac("sha1", user.salt)
+          .update(password)
+          .digest("hex");
+      } catch (err) {
+        return "";
+      }
+    };
+
+    // Authenticate
+    if (!(encryptPassword(password) === user.hashed_password)) {
+      return res.status(400).json({
+        error: "Email and password do not match",
+      });
+      console.log("win");
+    }
+    //generate a token and send to client
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    const { id, name, email, role } = user;
+
+    return res.json({
+      token,
+      user: { id, name, email, role },
+    });
   });
+  // User.findOne({ email }).exec((err, user) => {
+  //     if (err || !user) {
+  //         return res.status(400).json({
+  //             error: 'User with that email does not exist. Please signup'
+  //         });
+  //     }
+  //     // authenticate
+  //     if (!user.authenticate(password)) {
+  //         return res.status(400).json({
+  //             error: 'Email and password do not match'
+  //         });
+  //     }
+  //     // generate a token and send to client
+  //     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  //     const { _id, name, email, role } = user;
+
+  //     return res.json({
+  //         token,
+  //         user: { _id, name, email, role }
+  //     });
+  // });
 };
