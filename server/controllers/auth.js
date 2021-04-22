@@ -1,8 +1,8 @@
 const User = require("../models/user");
 const mysqlUser = require("../models/mysqlUsers");
 const crypto = require("crypto");
-const jwt = require('jsonwebtoken');
-const sgMail = require('@sendgrid/mail');
+const jwt = require("jsonwebtoken");
+const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // exports.signup = (req, res) => {
@@ -89,78 +89,149 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // };
 
 exports.signup = (req, res) => {
-    const { name, email, password } = req.body;
+  const { name, email, password } = req.body;
 
-    User.findOne({ email }).exec((err, user) => {
-        if (user) {
-            return res.status(400).json({
-                error: 'Email is taken'
-            });
-        }
+  mysqlUser.findById(email, (err, data) => {
+    if (data) {
+      return res.status(400).json({
+        error: "Email is taken",
+      });
+    }
+    // if (err) {
+    //   if (err.kind === "not_found") {
+    //     res.status(404).send({
+    //       message: `Not found User with email ${email}.`
+    //     });
+    //   } else {
+    //     res.status(500).send({
+    //       message: "Error retrieving User with email " + email
+    //     });
+    //   }
+    // } else res.send(data);
+    const token = jwt.sign(
+      { name, email, password },
+      process.env.JWT_ACCOUNT_ACTIVATION,
+      { expiresIn: "10m" }
+    );
 
-        const token = jwt.sign({ name, email, password }, process.env.JWT_ACCOUNT_ACTIVATION, { expiresIn: '10m' });
+    const emailData = {
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: `Account activation link`,
+      html: `
+                    <h1>Please use the following link to activate your account</h1>
+                    <p>${process.env.CLIENT_URL}/auth/activate/${token}</p>
+                    <hr />
+                    <p>This email may contain sensetive information</p>
+                    <p>${process.env.CLIENT_URL}</p>
+                `,
+    };
 
-        const emailData = {
-            from: process.env.EMAIL_FROM,
-            to: email,
-            subject: `Account activation link`,
-            html: `
-                <h1>Please use the following link to activate your account</h1>
-                <p>${process.env.CLIENT_URL}/auth/activate/${token}</p>
-                <hr />
-                <p>This email may contain sensetive information</p>
-                <p>${process.env.CLIENT_URL}</p>
-            `
-        };
+    sgMail
+      .send(emailData)
+      .then((sent) => {
+        // console.log('SIGNUP EMAIL SENT', sent)
+        return res.json({
+          message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
+        });
+      })
+      .catch((err) => {
+        // console.log('SIGNUP EMAIL SENT ERROR', err)
+        return res.json({
+          message: err.message,
+        });
+      });
+  });
 
-        sgMail
-            .send(emailData)
-            .then(sent => {
-                // console.log('SIGNUP EMAIL SENT', sent)
-                return res.json({
-                    message: `Email has been sent to ${email}. Follow the instruction to activate your account`
-                });
-            })
-            .catch(err => {
-                // console.log('SIGNUP EMAIL SENT ERROR', err)
-                return res.json({
-                    message: err.message
-                });
-            });
-    });
+  // User.findOne({ email }).exec((err, user) => {
+  //     if (user) {
+  //         return res.status(400).json({
+  //             error: 'Email is taken'
+  //         });
+  //     }
+
+  // });
 };
 
 exports.accountActivation = (req, res) => {
-    const { token } = req.body;
+  const { token } = req.body;
 
-    if (token) {
-        jwt.verify(token, process.env.JWT_ACCOUNT_ACTIVATION, function(err, decoded) {
-            if (err) {
-                console.log('JWT VERIFY IN ACCOUNT ACTIVATION ERROR', err);
-                return res.status(401).json({
-                    error: 'Expired link. Signup again'
-                });
+  if (token) {
+    jwt.verify(
+      token,
+      process.env.JWT_ACCOUNT_ACTIVATION,
+      function (err, decoded) {
+        if (err) {
+          console.log("JWT VERIFY IN ACCOUNT ACTIVATION ERROR", err);
+          return res.status(401).json({
+            error: "Expired link. Signup again",
+          });
+        }
+
+        const { name, email, password } = jwt.decode(token);
+        var passwordToken = password;
+        const salt = function () {
+          return Math.round(new Date().valueOf() * Math.random()) + "";
+        };
+        // Validate request
+        if (!req.body) {
+          res.status(400).send({
+            message: "Content can not be empty!",
+          });
+        }
+        // Create a User
+        const newUser = new mysqlUser({
+          email: email,
+          role: "subscriber",
+          name: name,
+          salt: salt(),
+          password: function () {
+            let password = passwordToken;
+            console.log("passs", this.salt);
+
+            if (!password) return "";
+            try {
+              return crypto
+                .createHmac("sha1", this.salt)
+                .update(password)
+                .digest("hex");
+            } catch (err) {
+              console.log("errror", err);
+              return "";
             }
+          },
+        });
 
-            const { name, email, password } = jwt.decode(token);
-
-            const user = new User({ name, email, password });
-
-            user.save((err, user) => {
-                if (err) {
-                    console.log('SAVE USER IN ACCOUNT ACTIVATION ERROR', err);
-                    return res.status(401).json({
-                        error: 'Error saving user in database. Try signup again'
-                    });
-                }
-                return res.json({
-                    message: 'Signup success. Please signin.'
-                });
+        // Save User in the database
+        mysqlUser.create(newUser, (err, data) => {
+          if (err)
+            res.status(500).send({
+              message:
+                err.message ||
+                "Some error occurred while creating the Customer.",
             });
+          return res.json({
+              message: "Signup success. Please signin."
+          })
         });
-    } else {
-        return res.json({
-            message: 'Something went wrong. Try again.'
-        });
-    }
+        // const user = new User({ name, email, password });
+
+        // user.save((err, user) => {
+        //   if (err) {
+        //     console.log("SAVE USER IN ACCOUNT ACTIVATION ERROR", err);
+        //     return res.status(401).json({
+        //       error: "Error saving user in database. Try signup again",
+        //     });
+        //   }
+        //   return res.json({
+        //     message: "Signup success. Please signin.",
+        //   });
+        // });
+      }
+    );
+  } else {
+    return res.json({
+      message: "Something went wrong. Try again.",
+    });
+  }
 };
