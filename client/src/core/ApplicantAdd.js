@@ -34,7 +34,7 @@ class ApplicantAdd extends Component {
     event.preventDefault();
     const { item } = this.state;
     await axios.post(`${process.env.REACT_APP_API}/createApplicant`, item);
-    this.props.history.push("/private");
+    this.props.history.push("/admin");
   }
 
   render() {
@@ -104,7 +104,7 @@ class ApplicantAdd extends Component {
               <Button color="primary" type="submit">
                 Save
               </Button>{" "}
-              <Button color="secondary" tag={Link} to="/private">
+              <Button color="secondary" tag={Link} to="/admin">
                 Cancel
               </Button>
             </FormGroup>

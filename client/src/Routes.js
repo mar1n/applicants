@@ -20,9 +20,9 @@ const Routes = () => {
                 <Route path="/signin" exact component={Signin} />
                 <Route path="/auth/activate/:token" exact component={Activate} />
                 <PrivateRoute path="/private" exact component={Private} />
-                <PrivateRoute path="/applicantEdit/:id" exact component={ApplicantEdit} />
-                <PrivateRoute path="/applicantAdd" exact component={ApplicantAdd} />
                 <AdminRoute path="/admin" exact component={Admin} />
+                <AdminRoute path="/applicantEdit/:id" exact component={ApplicantEdit} />
+                <AdminRoute path="/applicantAdd" exact component={ApplicantAdd} />
             </Switch>
         </BrowserRouter>
     );

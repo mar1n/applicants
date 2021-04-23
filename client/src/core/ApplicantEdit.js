@@ -48,7 +48,7 @@ class ApplicantEdit extends Component {
       `${process.env.REACT_APP_API}/updateApplicant/${this.props.match.params.id}`,
       item
     );
-    this.props.history.push("/private");
+    this.props.history.push("/admin");
   }
 
   render() {
@@ -118,7 +118,7 @@ class ApplicantEdit extends Component {
               <Button color="primary" type="submit">
                 Save
               </Button>{" "}
-              <Button color="secondary" tag={Link} to="/private">
+              <Button color="secondary" tag={Link} to="/admin">
                 Cancel
               </Button>
             </FormGroup>
