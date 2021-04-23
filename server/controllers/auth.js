@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const mysqlUser = require("../models/mysqlUsers");
+const Applicant = require("../models/mysqlApplicants");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
@@ -297,4 +298,113 @@ exports.signin = (req, res) => {
   //         user: { _id, name, email, role }
   //     });
   // });
+};
+
+exports.createApplicant = (req, res) => {
+  // Validate request
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  // Create a Customer
+  const applicant = new Applicant({
+    FirstName: req.body.FirstName,
+    LastName: req.body.LastName,
+    Email: req.body.Email,
+    DateOfBirth: req.body.DateOfBirth,
+    PhoneNo: req.body.PhoneNo,
+  });
+
+  // Save Customer in the database
+  Applicant.create(applicant, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Customer."
+      });
+    else res.send(data);
+  });
+};
+
+exports.getAllApplicants = (req, res) => {
+  const { name, email, password } = req.body;
+  Applicant.getAll((err, data) => {
+
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found User with email ${email}.`
+        });
+      } else {
+        res.status(500).send({
+          message: "Error retrieving User with email " + email
+        });
+      }
+    } else res.send(data);
+  });
+}
+
+exports.deleteApplicant = (req, res) => {
+  Applicant.remove(req.params.applicantId, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Applicant with id ${req.params.applicantId}.`
+        });
+      } else {
+        res.status(500).send({
+          message: "Could not delete Applicant with id " + req.params.applicantId
+        });
+      }
+    } else res.send({ message: `Applicant was deleted successfully!` });
+  });
+};
+
+exports.findApplicant = (req, res) => {
+  Applicant.findById(req.params.applicantId, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Applicant with id ${req.params.applicantId}.`
+        });
+      } else {
+        res.status(500).send({
+          message: "Error retrieving Customer with id " + req.params.ApplicantId
+        });
+      }
+    } else res.send(data);
+  });
+};
+
+exports.updateApplicant = (req, res) => {
+  console.log('id', req.params.applicantId)
+  console.log('body',req.body)
+  // Validate Request
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  console.log(req.body);
+
+  Applicant.updateById(
+    req.params.applicantId,
+    new Applicant(req.body),
+    (err, data) => {
+      if (err) {
+        if (err.kind === "not_found") {
+          res.status(404).send({
+            message: `Not found Applicant with id ${req.params.applicantId}.`
+          });
+        } else {
+          res.status(500).send({
+            message: "Error updating Applicant with id " + req.params.applicantId
+          });
+        }
+      } else res.send(data);
+    }
+  );
 };

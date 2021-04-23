@@ -8,6 +8,8 @@ import Private from './core/Private';
 import Admin from './core/Admin';
 import PrivateRoute from './auth/PrivateRoute';
 import AdminRoute from './auth/AdminRoute';
+import ApplicantEdit from "./core/ApplicantEdit";
+import ApplicantAdd from "./core/ApplicantAdd";
 
 const Routes = () => {
     return (
@@ -18,6 +20,8 @@ const Routes = () => {
                 <Route path="/signin" exact component={Signin} />
                 <Route path="/auth/activate/:token" exact component={Activate} />
                 <PrivateRoute path="/private" exact component={Private} />
+                <PrivateRoute path="/applicantEdit/:id" exact component={ApplicantEdit} />
+                <PrivateRoute path="/applicantAdd" exact component={ApplicantAdd} />
                 <AdminRoute path="/admin" exact component={Admin} />
             </Switch>
         </BrowserRouter>
