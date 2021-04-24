@@ -1,7 +1,8 @@
 ﻿# applicants
 Hi,<br/>
-in server:<br/>
+here is link to youtube video of my work: https://www.youtube.com/watch?v=GnmjVsJPnNA<br/>
 
+in server:<br/>
 configuration for MySQL db:<br/>
 https://github.com/mar1n/applicants/blob/main/server/config/db.config.js<br/>
 connect to MySQL:<br/>
