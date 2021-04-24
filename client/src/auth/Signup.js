@@ -8,9 +8,9 @@ import 'react-toastify/dist/ReactToastify.min.css';
 
 const Signup = () => {
     const [values, setValues] = useState({
-        name: 'Ryan',
-        email: 'cykcykacz@gmail.com',
-        password: 'asdasdasdasda',
+        name: '',
+        email: '',
+        password: '',
         buttonText: 'Submit'
     });
 

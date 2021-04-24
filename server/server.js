@@ -2,21 +2,21 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
 
 // connect to db
-mongoose
-    .connect(process.env.DATABASE, {
-        useNewUrlParser: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true,
-        useCreateIndex: true
-    })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log('MOngoDB CONNECTION ERROR: ', err));
+// mongoose
+//     .connect(process.env.DATABASE, {
+//         useNewUrlParser: true,
+//         useFindAndModify: false,
+//         useUnifiedTopology: true,
+//         useCreateIndex: true
+//     })
+//     .then(() => console.log('MongoDB connected'))
+//     .catch(err => console.log('MOngoDB CONNECTION ERROR: ', err));
 
 // import routes
 const authRoutes = require('./routes/auth');
