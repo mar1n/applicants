@@ -36,12 +36,14 @@ class ApplicantsList extends React.Component {
         }
     
         const customerList = applicants.map(customer => {
+          let ck = customer.Ckeditor;
           return <tr key={customer.id}>
             <td style={{whiteSpace: 'nowrap'}}>{customer.FirstName}</td>
             <td>{customer.LastName}</td>
             <td>{customer.Email}</td>
             <td>{customer.DateOfBirth}</td>
             <td>{customer.PhoneNo}</td>
+            <td><div dangerouslySetInnerHTML={{__html: ck }} /> </td>
             <td>
               <ButtonGroup>
                 <Button size="sm" color="primary" tag={Link} to={"/applicantEdit/" + customer.id}>Edit</Button>
@@ -66,6 +68,7 @@ class ApplicantsList extends React.Component {
                     <th width="10%">Email</th>
                     <th>DateOfBirth</th>
                     <th>PhoneNo</th>
+                    <th>Ckeditor</th>
                     <th width="10%">Actions</th>
                   </tr>
                 </thead>

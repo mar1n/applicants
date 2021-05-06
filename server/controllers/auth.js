@@ -315,6 +315,7 @@ exports.createApplicant = (req, res) => {
     Email: req.body.Email,
     DateOfBirth: req.body.DateOfBirth,
     PhoneNo: req.body.PhoneNo,
+    Ckeditor: req.body.Ckeditor,
   });
 
   // Save Customer in the database

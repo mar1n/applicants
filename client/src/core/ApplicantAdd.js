@@ -13,7 +13,7 @@ class ApplicantAdd extends Component {
     Email: "",
     DateOfBirth: "",
     PhoneNo: "",
-    ckeditor: "",
+    Ckeditor: "",
   };
 
   constructor(props) {
@@ -29,7 +29,7 @@ class ApplicantAdd extends Component {
   handleChange(event, ckeditor) {
     let name, target, value;
     if(event.name === "change:data") {
-      name = 'ckeditor';
+      name = 'Ckeditor';
       value = ckeditor;
     } else {
       target = event.target;

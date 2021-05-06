@@ -6,9 +6,11 @@ const Applicant = function (applicant) {
   this.Email = applicant.Email;
   this.DateOfBirth = applicant.DateOfBirth;
   this.PhoneNo = applicant.PhoneNo;
+  this.Ckeditor = applicant.Ckeditor;
 };
 
 Applicant.create = (newUser, result) => {
+  console.log('newUser', newUser);
   sql.query("INSERT INTO applicants SET ?", newUser, (err, res) => {
     if (err) {
       console.log("error: ", err);
@@ -55,13 +57,14 @@ Applicant.getAll = (result) => {
 
 Applicant.updateById = (id, applicant, result) => {
   sql.query(
-    "UPDATE applicants SET FirstName = ?, LastName = ?, Email = ?, DateOfBirth = ?, PhoneNo = ? WHERE id = ?",
+    "UPDATE applicants SET FirstName = ?, LastName = ?, Email = ?, DateOfBirth = ?, PhoneNo = ?, Ckeditor = ?, WHERE id = ?",
     [
       applicant.FirstName,
       applicant.LastName,
       applicant.Email,
       applicant.DateOfBirth,
       applicant.PhoneNo,
+      applicant.Ckeditor,
       id,
     ],
     (err, res) => {
