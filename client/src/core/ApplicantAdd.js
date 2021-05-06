@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 import { Button, Container, Form, FormGroup, Input, Label } from "reactstrap";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
 import axios from "axios";
 
 class ApplicantAdd extends Component {
@@ -10,21 +13,30 @@ class ApplicantAdd extends Component {
     Email: "",
     DateOfBirth: "",
     PhoneNo: "",
+    ckeditor: "",
   };
 
   constructor(props) {
     super(props);
     this.state = {
       item: this.emptyApplicant,
+      ckeditor: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event) {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
+  handleChange(event, ckeditor) {
+    let name, target, value;
+    if(event.name === "change:data") {
+      name = 'ckeditor';
+      value = ckeditor;
+    } else {
+      target = event.target;
+      value = target.value;
+      name = target.name;
+    }
+
     let item = { ...this.state.item };
     item[name] = value;
     this.setState({ item });
@@ -100,6 +112,25 @@ class ApplicantAdd extends Component {
                 autoComplete="PhoneNo"
               />
             </FormGroup>
+            <CKEditor
+                    editor={ ClassicEditor }
+                    data="<p>Hello from CKEditor 5!</p>"
+                    onReady={ editor => {
+                        // You can store the "editor" and use when it is needed.
+                        //console.log( 'Editor is ready to use!', editor );
+                    } }
+                    onChange={ ( event, editor ) => {
+                        const data = editor.getData();
+                        this.handleChange(event, data);
+                        //console.log('onchange', { event, editor, data } );
+                    } }
+                    onBlur={ ( event, editor ) => {
+                        //console.log( 'Blur.', editor );
+                    } }
+                    onFocus={ ( event, editor ) => {
+                        //console.log( 'Focus.', editor );
+                    } }
+                />
             <FormGroup>
               <Button color="primary" type="submit">
                 Save
@@ -110,6 +141,7 @@ class ApplicantAdd extends Component {
             </FormGroup>
           </Form>
         </Container>
+        
       </div>
     );
   }
