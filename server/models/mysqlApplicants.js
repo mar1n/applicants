@@ -57,7 +57,7 @@ Applicant.getAll = (result) => {
 
 Applicant.updateById = (id, applicant, result) => {
   sql.query(
-    "UPDATE applicants SET FirstName = ?, LastName = ?, Email = ?, DateOfBirth = ?, PhoneNo = ?, Ckeditor = ?, WHERE id = ?",
+    "UPDATE applicants SET FirstName = ?, LastName = ?, Email = ?, DateOfBirth = ?, PhoneNo = ?, Ckeditor = ? WHERE id = ?",
     [
       applicant.FirstName,
       applicant.LastName,

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 import { Button, Container, Form, FormGroup, Input, Label } from "reactstrap";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import axios from "axios";
 
 class ApplicantEdit extends Component {
@@ -10,6 +12,7 @@ class ApplicantEdit extends Component {
     Email: "",
     DateOfBirth: "",
     PhoneNo: "",
+    Ckeditor: "",
   };
 
   constructor(props) {
@@ -32,10 +35,17 @@ class ApplicantEdit extends Component {
     }
   }
 
-  handleChange(event) {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
+  handleChange(event, ckeditor) {
+    let name, target, value;
+    if(event.name === "change:data") {
+      name = 'Ckeditor';
+      value = ckeditor;
+    } else {
+      target = event.target;
+      value = target.value;
+      name = target.name;
+    }
+
     let item = { ...this.state.item };
     item[name] = value;
     this.setState({ item });
@@ -112,6 +122,25 @@ class ApplicantEdit extends Component {
                 value={item.PhoneNo || ""}
                 onChange={this.handleChange}
                 autoComplete="PhoneNo"
+              />
+              <CKEditor
+                editor={ClassicEditor}
+                data={item.Ckeditor || ""}
+                onReady={(editor) => {
+                  // You can store the "editor" and use when it is needed.
+                  //console.log( 'Editor is ready to use!', editor );
+                }}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  this.handleChange(event, data);
+                  //console.log('onchange', { event, editor, data } );
+                }}
+                onBlur={(event, editor) => {
+                  //console.log( 'Blur.', editor );
+                }}
+                onFocus={(event, editor) => {
+                  //console.log( 'Focus.', editor );
+                }}
               />
             </FormGroup>
             <FormGroup>
